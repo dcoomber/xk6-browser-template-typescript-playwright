@@ -20,7 +20,7 @@
         "skipLibCheck": true,
         "paths": {
             "@pages/*": [
-                "./pages/*"
+                "./src/pages/*"
             ]
         }
     }
