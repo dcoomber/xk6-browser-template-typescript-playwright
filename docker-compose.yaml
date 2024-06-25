@@ -1,6 +1,5 @@
 services:
   xk6-browser:
-    platform: linux/amd64
-    build: .
+    image: grafana/k6:0.51.0-with-browser
     volumes:
       - ./dist:/home/k6/dist

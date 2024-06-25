@@ -31,21 +31,29 @@ Because xk6-browser roughly adheres to Playwright's browser API, this enables yo
 ```Typescript
 import { check } from 'k6';
 import { Options } from 'k6/options';
-import { chromium } from 'k6/experimental/browser';
+import { browser } from 'k6/experimental/browser';
 import { clickCheckboxOnk6 } from '@pages/example-page';
 
 
 export let options: Options = {
     vus: 1,
-    duration: '10s'
+    scenarios: {
+        ui: {
+            executor: 'shared-iterations',
+            options: {
+            browser: {
+              type: 'chromium',
+            },
+          },
+        },
+    },
+    thresholds: {
+        checks: ["rate==1.0"]
+    }
 };
 
 export default async function () {
-    const browser = chromium.launch({
-        headless: true, args: ['no-sandbox']
-    });
-    const context = browser.newContext();
-    const page = context.newPage();
+    const page = browser.newPage();
     try {
         await clickCheckboxOnk6(page);
         check(page, {
@@ -54,7 +62,6 @@ export default async function () {
         });
     } finally {
         page.close();
-        browser.close();
     }
 };
 ```
@@ -108,7 +115,7 @@ $ npm run k6 dist/k6/example-test.js
 
 This command does the following things:
 * Transpiles the Typescript files from `./src` to Javascript test files in the `./dist` folder using `Babel` and `Webpack` (you can also do this separately using `npm run build`). [Learn more](https://k6.io/docs/using-k6/modules#bundling-node-modules)
-* Runs the provided transpiled test with k6 using the Dockerfile and docker-compose, which will mount the `./dist` folder to `/home/k6/dist`, making the tests in there available for the container.
+* Runs the provided transpiled test with k6 using the and docker-compose, which will mount the `./dist` folder to `/home/k6/dist`, making the tests in there available for the container.
 
 ### Assumptions
 - The tests need to have the "_test_" word in the name to distinguish them from auxiliary files. You can change the entry [here](./webpack.config.js#L8).

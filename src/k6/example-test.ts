@@ -1,20 +1,28 @@
 import { check } from 'k6';
 import { Options } from 'k6/options';
-import { chromium } from 'k6/experimental/browser';
+import { browser } from 'k6/experimental/browser';
 import { clickCheckboxOnk6 } from '@pages/example-page';
 
 
 export let options: Options = {
     vus: 1,
-    duration: '10s'
+    scenarios: {
+        ui: {
+            executor: 'shared-iterations',
+            options: {
+            browser: {
+              type: 'chromium',
+            },
+          },
+        },
+    },
+    thresholds: {
+        checks: ["rate==1.0"]
+    }
 };
 
 export default async function () {
-    const browser = chromium.launch({
-        headless: true, args: ['no-sandbox']
-    });
-    const context = browser.newContext();
-    const page = context.newPage();
+    const page = browser.newPage();
     try {
         await clickCheckboxOnk6(page);
         check(page, {
@@ -23,6 +31,5 @@ export default async function () {
         });
     } finally {
         page.close();
-        browser.close();
     }
 };
