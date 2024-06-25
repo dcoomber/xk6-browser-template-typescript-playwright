@@ -1,5 +1,6 @@
 services:
   xk6-browser:
+    platform: linux/amd64
     build: .
     volumes:
       - ./dist:/home/k6/dist
